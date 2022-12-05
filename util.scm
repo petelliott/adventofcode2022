@@ -1,6 +1,8 @@
 (define-library (util)
   (import (scheme base))
-  (export string-split)
+  (export string-split
+          list-set
+          list-head)
   (begin
 
     (define (string-split str char)
@@ -11,5 +13,17 @@
             (do ((j i (+ j 1)))
                 ((or (= l j) (equal? (string-ref str j) char))
                  (cons (string-copy str i j) (loop (+ j 1))))))))
+
+    (define (list-set list k obj)
+      (cond
+       ((= k 0) (cons obj (cdr list)))
+       ((null? list) '())
+       (else (cons (car list) (list-set (cdr list) (- k 1) obj)))))
+
+    (define (list-head list k)
+      (if (= k 0)
+          '()
+          (cons (car list)
+                (list-head (cdr list) (- k 1)))))
 
     ))
