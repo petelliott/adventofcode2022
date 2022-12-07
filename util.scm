@@ -1,8 +1,10 @@
 (define-library (util)
-  (import (scheme base))
+  (import (scheme base)
+          (scheme read))
   (export string-split
           list-set
-          list-head)
+          list-head
+          string->object)
   (begin
 
     (define (string-split str char)
@@ -25,5 +27,10 @@
           '()
           (cons (car list)
                 (list-head (cdr list) (- k 1)))))
+
+    (define (string->object str)
+      (call-with-port (open-input-string str)
+        (lambda (port)
+          (read port))))
 
     ))
