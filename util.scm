@@ -4,7 +4,8 @@
   (export string-split
           list-set
           list-head
-          string->object)
+          string->object
+          repeat)
   (begin
 
     (define (string-split str char)
@@ -32,5 +33,10 @@
       (call-with-port (open-input-string str)
         (lambda (port)
           (read port))))
+
+    (define (repeat d n)
+    (if (= n 0)
+        '()
+        (cons d (repeat d (- n 1)))))
 
     ))
