@@ -1,11 +1,13 @@
 (define-library (util)
   (import (scheme base)
-          (scheme read))
+          (scheme read)
+          (srfi 1))
   (export string-split
           list-set
           list-head
           string->object
-          repeat)
+          repeat
+          maxn)
   (begin
 
     (define (string-split str char)
@@ -38,5 +40,15 @@
     (if (= n 0)
         '()
         (cons d (repeat d (- n 1)))))
+
+    (define (1maxn item maxes)
+      (cond
+       ((null? maxes) '())
+       ((> item (car maxes))
+        (cons item (reverse (cdr (reverse maxes)))))
+       (else (cons (car maxes) (1maxn item (cdr maxes))))))
+
+    (define (maxn lst n)
+      (fold 1maxn (make-list n 0) lst))
 
     ))
