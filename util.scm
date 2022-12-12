@@ -7,7 +7,8 @@
           list-head
           string->object
           repeat
-          maxn)
+          maxn
+          queue? make-queue queue-push queue-peek queue-pop)
   (begin
 
     (define (string-split str char)
@@ -50,5 +51,39 @@
 
     (define (maxn lst n)
       (fold 1maxn (make-list n 0) lst))
+
+    ;; immutable queues
+
+    (define-record-type queue
+      (construct-queue front back)
+      queue?
+      (front queue-front)
+      (back queue-back))
+
+    (define (make-queue)
+      (construct-queue '() '()))
+
+    (define (list-push list items)
+      (if (null? items)
+          list
+          (list-push (cons (car items) list) (cdr items))))
+
+    (define (queue-push queue . items)
+      (construct-queue (queue-front queue)
+                       (list-push (queue-back queue) items)))
+
+    (define (queue-peek queue)
+      (if (null? (queue-front queue))
+          (if (null? (queue-back queue))
+              #f
+              (last (queue-back queue)))
+          (car (queue-front queue))))
+
+    (define (queue-pop queue)
+      (if (null? (queue-front queue))
+          (if (null? (queue-back queue))
+              queue
+              (queue-pop (construct-queue (reverse (queue-back queue)) '())))
+          (construct-queue (cdr (queue-front queue)) (queue-back queue))))
 
     ))
