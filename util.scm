@@ -1,14 +1,21 @@
 (define-library (util)
   (import (scheme base)
           (scheme read)
-          (srfi 1))
+          (scheme write)
+          (srfi 1)
+          (srfi 28)
+          (srfi 69))
   (export string-split
           list-set
           list-head
           string->object
           repeat
           maxn
-          queue? make-queue queue-push queue-peek queue-pop)
+          queue? make-queue queue-push queue-peek queue-pop
+          memoize
+          memo-stats
+          bfs
+          cross)
   (begin
 
     (define (string-split str char)
@@ -85,5 +92,49 @@
               queue
               (queue-pop (construct-queue (reverse (queue-back queue)) '())))
           (construct-queue (cdr (queue-front queue)) (queue-back queue))))
+
+    (define notfound '7048814c-c63b-4856-ab8e-e22c66391e1d)
+
+    (define n 0)
+    (define hits 0)
+    (define (memoize proc)
+      (define table (make-hash-table))
+      (lambda args
+        (define hash-r (hash-table-ref table args (lambda () notfound)))
+        (if (eq? hash-r notfound)
+            (let ((r (apply proc args)))
+              (hash-table-set! table args r)
+              (set! n (+ n 1))
+              r)
+            (begin
+              (set! n (+ n 1))
+              (set! hits (+ hits 1))
+              hash-r))))
+
+    (define (memo-stats)
+      (display (format "~a calls, ~a hitrate\n"
+                       n (if (= n 0) 0 (inexact (/ hits n))))))
+
+    (define (bfs start end cproc)
+      (define seen (make-hash-table))
+      (let loop ((queue (queue-push (make-queue) (cons 0 start))))
+        (let* ((qe (queue-peek queue))
+               (dist (car qe))
+               (node (cdr qe)))
+          (cond
+           ((equal? node end) dist)
+           ((hash-table-exists? seen node)
+            (loop (queue-pop queue)))
+           (else
+            (hash-table-set! seen node #t)
+            (loop (apply queue-push (queue-pop queue)
+                         (map (lambda (n) (cons (+ dist 1) n))
+                              (cproc node)))))))))
+
+    (define (cross l1 l2)
+      (if (null? l1)
+          '()
+          (append (map (lambda (o) (list (car l1) o)) l2)
+                  (cross (cdr l1) l2))))
 
     ))
